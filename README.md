@@ -3,9 +3,9 @@
 The paper: https://arxiv.org/abs/1908.04913
 
 ### Examples of FairFace Prediction
-![](https://github.com/dchen236/FairFace/blob/master/examples/female.png|width=500px)
-![](https://github.com/dchen236/FairFace/blob/master/examples/male.png|width=100px)
 
+<img src="https://github.com/dchen236/FairFace/blob/master/examples/female.png" width="324" height="324">
+<img src="https://github.com/dchen236/FairFace/blob/master/examples/male.png" width="324" height="324">
 ### Instructions to use FairFace
 
 #### Download or Clone this repo
