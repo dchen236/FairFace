@@ -18,6 +18,7 @@ The paper: https://arxiv.org/abs/1908.04913
    ```
 - Download our models
    Download our pretrained models from [here](https://drive.google.com/file/d/1SSfZLl-KoOkK_51cnk9S-Lm55g18mBX7/view?usp=sharing) and save it in the same folder as where predict.py is located. 
+- Unzip the downloaded FairFace model as well as dlib face detection models in dlib_models.
 - Prepare the images
    - prepare a csv and provide the paths of testing images where the colname name of testing images is "img_path" (see our [template csv file](https://github.com/dchen236/FairFace/blob/master/test_imgs.csv).
 
