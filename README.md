@@ -23,7 +23,7 @@ The paper: https://arxiv.org/abs/1908.04913
 
 
 ### Run script predict.py
-Run the predict.py script and provide the csv path (described in #Prepare-the-images section above).
+Run the predict.py script and provide the csv path (described in #prepare-the-images above).
 ```
 python3 predict.py --csv "NAME_OF_CSV"
 ```
