@@ -2,10 +2,11 @@
 
 The paper: https://arxiv.org/abs/1908.04913
 
+### Examples of FairFace Prediction
 ![](https://github.com/dchen236/FairFace/blob/master/examples/female.png)
 ![](https://github.com/dchen236/FairFace/blob/master/examples/male.png)
 
-### Instructions of using the models to predict race, gender and age
+### Instructions to use FairFace
 
 #### Download or Clone this repo
 
@@ -35,7 +36,7 @@ The results will be saved at "test_outputs.csv" (located in the same folder as p
 
 ##### output file documentation
 indices to type
-- race_scores_fair (model confidence score)   \[White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern\]
+- race_scores_fair (model confidence score)   [White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern]
 - race_scores_fair_4 (model confidence score) [White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern]
 - gender_scores_fair (model confidence score) [Male, Female]
 - age_scores_fair (model confidence score)    [0-2, 3-9, 10-19, 20-29, 30-39, 40-49, 50-59, 60-69, 70+]
