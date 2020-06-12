@@ -35,7 +35,13 @@ python3 predict.py --csv "NAME_OF_CSV"
 
 The results will be saved at "test_outputs.csv" (located in the same folder as predict.py, see sample [here](https://github.com/dchen236/FairFace/blob/master/test_outputs.csv)
 
+##### output file documentation
 
+indices to type
+- race_scores_fair (model confidence score)   [White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern]
+- race_scores_fair_4 (model confidence score) [White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern]
+- gender_scores_fair (model confidence score) [Male, Female]
+- age_scores_fair (model confidence score)    [0-2, 3-9, 10-19, 20-29, 30-39, 40-49, 50-59, 60-69, 70+]
 
 
 
