@@ -19,7 +19,7 @@ The paper: https://arxiv.org/abs/1908.04913
 - Download our models
    Download our pretrained models from [here](https://drive.google.com/file/d/1SSfZLl-KoOkK_51cnk9S-Lm55g18mBX7/view?usp=sharing) and save it in the same folder as where predict.py is located. 
 - Prepare the images
-- prepare a csv and provide the paths of testing images where the colname name of testing images is "img_path" (see our [template csv file](https://github.com/dchen236/FairFace/blob/master/test_imgs.csv).
+   - prepare a csv and provide the paths of testing images where the colname name of testing images is "img_path" (see our [template csv file](https://github.com/dchen236/FairFace/blob/master/test_imgs.csv).
 
 
 ### Run script predict.py
@@ -27,7 +27,7 @@ Run the predict.py script and provide the csv path (described in #Prepare-the-im
 ```
 python3 predict.py --csv "NAME_OF_CSV"
 ```
-After download this repository, you can run `python3 predict.pu --csv test_imgs.csv`, the results will be available at (detected_
+After download this repository, you can run `python3 predict.pu --csv test_imgs.csv`, the results will be available at detected_faces (in case dlib detect multiple faces in one image, we save them here) and test_outputs.csv.
 #### Results
 The results will be saved at "test_outputs.csv" (located in the same folder as predict.py, see sample [here](https://github.com/dchen236/FairFace/blob/master/test_outputs.csv)
 
@@ -42,7 +42,7 @@ indices to type
 Images (train + validation set): [Padding=0.25](https://drive.google.com/file/d/1Z1RqRo0_JiavaZw2yzZG6WETdZQ8qX86/view), [Padding=1.25](https://drive.google.com/file/d/1g7qNOZz9wC7OfOhcPqH1EZ5bk1UFGmlL/view)
 
 We used dlib's get_face_chip() to crop and align faces with padding = 0.25 in the main experiments (less margin) and padding = 1.25 for the bias measument experiment for commercial APIs.
-Labels: [Train](https://drive.google.com/file/d/1i1L3Yqwaio7YSOCj7ftgk8ZZchPG7dmH/view) [Validation](https://drive.google.com/file/d/1wOdja-ezstMEp81tX1a-EYkFebev4h7D/view)
+Labels: [Train](https://drive.google.com/file/d/1i1L3Yqwaio7YSOCj7ftgk8ZZchPG7dmH/view), [Validation](https://drive.google.com/file/d/1wOdja-ezstMEp81tX1a-EYkFebev4h7D/view)
 
 License: CC BY 4.0
 
