@@ -3,8 +3,8 @@
 The paper: https://arxiv.org/abs/1908.04913
 
 ### Examples of FairFace Prediction
-![](https://github.com/dchen236/FairFace/blob/master/examples/female.png | width=100)
-![](https://github.com/dchen236/FairFace/blob/master/examples/male.png | width=100)
+![](https://github.com/dchen236/FairFace/blob/master/examples/female.png|width=100px)
+![](https://github.com/dchen236/FairFace/blob/master/examples/male.png|width=100px)
 
 ### Instructions to use FairFace
 
