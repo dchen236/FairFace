@@ -1,5 +1,7 @@
 ## FairFace
 
+The paper: https://arxiv.org/abs/1908.04913
+
 
 
 ### Instructions of using the models to predict race, gender and age
@@ -36,6 +38,14 @@ indices to type
 - race_scores_fair_4 (model confidence score) [White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern]
 - gender_scores_fair (model confidence score) [Male, Female]
 - age_scores_fair (model confidence score)    [0-2, 3-9, 10-19, 20-29, 30-39, 40-49, 50-59, 60-69, 70+]
+
+### Data
+Images (train + validation set): [Padding=0.25], [Padding=1.25]
+
+We used dlib's get_face_chip() to crop and align faces with padding = 0.25 in the main experiments (less margin) and padding = 1.25 for the bias measument experiment for commercial APIs.
+Labels: Train Validation
+
+License: CC BY 4.0
 
 
 ### Notes
