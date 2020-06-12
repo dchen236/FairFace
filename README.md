@@ -6,9 +6,9 @@ Instructions of using the models to predict race, gender and age
 
 ### Install Dependencies
 
-Please follow the [Pytorch's official documentation](https://pytorch.org/get-started/locally/) to install Pytorch
+1. Please follow the [Pytorch's official documentation](https://pytorch.org/get-started/locally/) to install Pytorch
 
-```
+2. ```
 pip install dlib
 ```
 Download our pretrained models from [here](https://drive.google.com/file/d/1SSfZLl-KoOkK_51cnk9S-Lm55g18mBX7/view?usp=sharing)
