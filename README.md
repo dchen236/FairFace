@@ -48,4 +48,4 @@ Labels: [Train](https://drive.google.com/file/d/1i1L3Yqwaio7YSOCj7ftgk8ZZchPG7dm
 License: CC BY 4.0
 
 ### Notes
-The models and scripts were tested on a device with 8Gb GPU, it takes unders 2 seconds to predict the 5 images in test folder.
+The models and scripts were tested on a device with 8Gb GPU, it takes under 2 seconds to predict the 5 images in the test folder.
