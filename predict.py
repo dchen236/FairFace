@@ -149,11 +149,8 @@ def predidct_age_gender_race(save_prediction_at, imgs_path = 'cropped_faces/'):
 
     result.loc[result['race_preds_fair_4'] == 0, 'race4'] = 'White'
     result.loc[result['race_preds_fair_4'] == 1, 'race4'] = 'Black'
-    result.loc[result['race_preds_fair_4'] == 2, 'race4'] = 'Latino_Hispanic'
-    result.loc[result['race_preds_fair_4'] == 3, 'race4'] = 'East Asian'
-    result.loc[result['race_preds_fair_4'] == 4, 'race4'] = 'Southeast Asian'
-    result.loc[result['race_preds_fair_4'] == 5, 'race4'] = 'Indian'
-    result.loc[result['race_preds_fair_4'] == 6, 'race4'] = 'Middle Eastern'
+    result.loc[result['race_preds_fair_4'] == 2, 'race4'] = 'Asian'
+    result.loc[result['race_preds_fair_4'] == 3, 'race4'] = 'Indian'
 
     # gender
     result.loc[result['gender_preds_fair'] == 0, 'gender'] = 'Male'
