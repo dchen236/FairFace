@@ -17,7 +17,7 @@ The paper: https://arxiv.org/abs/1908.04913
    pip install dlib
    ```
 - Download our models
-   Download our pretrained models from [here](https://drive.google.com/file/d/1SSfZLl-KoOkK_51cnk9S-Lm55g18mBX7/view?usp=sharing) and save it in the same folder as where predict.py is located. 
+   Download our pretrained models from [here](https://drive.google.com/file/d/1SSfZLl-KoOkK_51cnk9S-Lm55g18mBX7/view?usp=sharing) and save it in the same folder as where predict.py is located. Two models are included, race_4 model predicts race as White, Black, Asian and Indian and race_7 model predicts races as White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern.
 - Unzip the downloaded FairFace model as well as dlib face detection models in dlib_models.
 - Prepare the images
    - prepare a csv and provide the paths of testing images where the colname name of testing images is "img_path" (see our [template csv file](https://github.com/dchen236/FairFace/blob/master/test_imgs.csv).
@@ -35,7 +35,7 @@ The results will be saved at "test_outputs.csv" (located in the same folder as p
 ##### output file documentation
 indices to type
 - race_scores_fair (model confidence score)   [White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern]
-- race_scores_fair_4 (model confidence score) [White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern]
+- race_scores_fair_4 (model confidence score) [White, Black, Asian, Indian]
 - gender_scores_fair (model confidence score) [Male, Female]
 - age_scores_fair (model confidence score)    [0-2, 3-9, 10-19, 20-29, 30-39, 40-49, 50-59, 60-69, 70+]
 
