@@ -17,7 +17,7 @@ The paper: https://arxiv.org/abs/1908.04913
    pip install dlib
    ```
 - Download our models
-   Download our pretrained models from [here](https://drive.google.com/file/d/1Wy3uK_7KpkAvaYxNdeZQfSeC5iF9j-x9/view?usp=sharing) and save it in the same folder as where predict.py is located. Two models are included, race_4 model predicts race as White, Black, Asian and Indian and race_7 model predicts races as White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern.
+   Download our pretrained models from [here](https://drive.google.com/drive/folders/1B2gAnEpJ6oC9sMkcwS8v5Wk8PtHycHOV?usp=sharing) and save it in the same folder as where predict.py is located. Two models are included, race_4 model predicts race as White, Black, Asian and Indian and race_7 model predicts races as White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern.
 - Unzip the downloaded FairFace model as well as dlib face detection models in dlib_models.
 - Prepare the images
    - prepare a csv and provide the paths of testing images where the colname name of testing images is "img_path" (see our [template csv file](https://github.com/dchen236/FairFace/blob/master/test_imgs.csv).
