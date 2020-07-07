@@ -1,6 +1,17 @@
-## FairFace
+# FairFace: Face Attribute Dataset for Balanced Race, Gender, and Age
 
 The paper: https://arxiv.org/abs/1908.04913
+
+Kärkkäinen, K., & Joo, J. (2019). FairFace: Face Attribute Dataset for Balanced Race, Gender, and Age. arXiv preprint arXiv:1908.04913.
+
+If you use our dataset or model in your paper, please cite:
+
+@article{karkkainen2019fairface,
+ title={FairFace: Face Attribute Dataset for Balanced Race, Gender, and Age},
+ author={K{\"a}rkk{\"a}inen, Kimmo and Joo, Jungseock},
+ journal={arXiv preprint arXiv:1908.04913},
+ year={2019}
+}
 
 ### Examples of FairFace Prediction
 ![](https://github.com/dchen236/FairFace/blob/master/examples/female.png)
