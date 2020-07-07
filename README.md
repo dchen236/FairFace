@@ -4,7 +4,7 @@ The paper: https://arxiv.org/abs/1908.04913
 
 Kärkkäinen, K., & Joo, J. (2019). FairFace: Face Attribute Dataset for Balanced Race, Gender, and Age. arXiv preprint arXiv:1908.04913.
 
-If you use our dataset or model in your paper, please cite:
+### If you use our dataset or model in your paper, please cite:
 
   @article{karkkainen2019fairface, <br>
     title={FairFace: Face Attribute Dataset for Balanced Race, Gender, and Age}, <br>
