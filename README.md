@@ -43,12 +43,22 @@ After download this repository, you can run `python3 predict.pu --csv test_imgs.
 #### Results
 The results will be saved at "test_outputs.csv" (located in the same folder as predict.py, see sample [here](https://github.com/dchen236/FairFace/blob/master/test_outputs.csv)
 
+### UPDATES: 
+
+### Run script predict_bbox.py
+ same commands as predict.py, the output csv will have additional column "bbox" which is the bounding box of detected face.
+```
+python3 predict_bbox.py --csv "NAME_OF_CSV"
+```
+ 
+
 ##### output file documentation
 indices to type
 - race_scores_fair (model confidence score)   [White, Black, Latino_Hispanic, East, Southeast Asian, Indian, Middle Eastern]
 - race_scores_fair_4 (model confidence score) [White, Black, Asian, Indian]
 - gender_scores_fair (model confidence score) [Male, Female]
 - age_scores_fair (model confidence score)    [0-2, 3-9, 10-19, 20-29, 30-39, 40-49, 50-59, 60-69, 70+]
+
 
 ### Data
 Images (train + validation set): [Padding=0.25](https://drive.google.com/file/d/1Z1RqRo0_JiavaZw2yzZG6WETdZQ8qX86/view), [Padding=1.25](https://drive.google.com/file/d/1g7qNOZz9wC7OfOhcPqH1EZ5bk1UFGmlL/view)
