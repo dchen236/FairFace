@@ -21,7 +21,6 @@ def detect_face(image_paths,  SAVE_DETECTED_AT, size = 300, padding = 0.25):
             print('---%d/%d---' %(index, len(image_paths)))
 
         img = dlib.load_rgb_image(image_path)
-        img = dlib.resize_image(img, 628, 628)
         dets = cnn_face_detector(img, 1)
         num_faces = len(dets)
         if num_faces == 0:
