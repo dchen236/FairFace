@@ -39,7 +39,7 @@ Run the predict.py script and provide the csv path (described in the section abo
 ```
 python3 predict.py --csv "NAME_OF_CSV"
 ```
-After download this repository, you can run `python3 predict.pu --csv test_imgs.csv`, the results will be available at detected_faces (in case dlib detect multiple faces in one image, we save them here) and test_outputs.csv.
+After download this repository, you can run `python3 predict.py --csv test_imgs.csv`, the results will be available at detected_faces (in case dlib detect multiple faces in one image, we save them here) and test_outputs.csv.
 #### Results
 The results will be saved at "test_outputs.csv" (located in the same folder as predict.py, see sample [here](https://github.com/dchen236/FairFace/blob/master/test_outputs.csv)
 
