@@ -24,7 +24,7 @@ def rect_to_bb(rect):
 	return (x, y, w, h)
 
 
-def detect_face(image_paths,  SAVE_DETECTED_AT, size = 300, padding = 0.25):
+def detect_face(image_paths,   SAVE_DETECTED_AT, default_max_size=800, size = 300, padding = 0.25):
     cnn_face_detector = dlib.cnn_face_detection_model_v1('dlib_models/mmod_human_face_detector.dat')
     sp = dlib.shape_predictor('dlib_models/shape_predictor_5_face_landmarks.dat')
     base = 2000  # largest width and height
@@ -35,7 +35,10 @@ def detect_face(image_paths,  SAVE_DETECTED_AT, size = 300, padding = 0.25):
 
         img = dlib.load_rgb_image(image_path)
         old_width, old_height, _ = img.shape
-        new_width, new_height = 628, int(628 * old_height / old_width)
+        if old_width > old_height:
+        	new_width, new_height = default_max_size, int(default_max_size * old_height / old_width)
+        else:
+        	new_width, new_height =  int(default_max_size * old_height / old_width), default_max_size
         img = dlib.resize_image(img, new_width, new_height )
         dets = cnn_face_detector(img, 1)
         num_faces = len(dets)
