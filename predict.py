@@ -12,6 +12,18 @@ import dlib
 import os
 import argparse
 
+def rect_to_bb(rect):
+	# take a bounding predicted by dlib and convert it
+	# to the format (x, y, w, h) as we would normally do
+	# with OpenCV
+	x = rect.left()
+	y = rect.top()
+	w = rect.right() - x
+	h = rect.bottom() - y
+	# return a tuple of (x, y, w, h)
+	return (x, y, w, h)
+
+
 def detect_face(image_paths,  SAVE_DETECTED_AT, size = 300, padding = 0.25):
     cnn_face_detector = dlib.cnn_face_detection_model_v1('dlib_models/mmod_human_face_detector.dat')
     sp = dlib.shape_predictor('dlib_models/shape_predictor_5_face_landmarks.dat')
@@ -21,6 +33,9 @@ def detect_face(image_paths,  SAVE_DETECTED_AT, size = 300, padding = 0.25):
             print('---%d/%d---' %(index, len(image_paths)))
 
         img = dlib.load_rgb_image(image_path)
+        old_width, old_height, _ = img.shape
+        new_width, new_height = 628, int( 628 * old_height / old_width)
+        img = dlib.resize_image(img, new_width, new_height)
         dets = cnn_face_detector(img, 1)
         num_faces = len(dets)
         if num_faces == 0:
