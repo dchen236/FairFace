@@ -6,6 +6,7 @@ Karkkainen, K., & Joo, J. (2021). FairFace: Face Attribute Dataset for Balanced 
 
 ### If you use our dataset or model in your paper, please cite:
 
+```
   @inproceedings{karkkainenfairface,
           title={FairFace: Face Attribute Dataset for Balanced Race, Gender, and Age for Bias Measurement and Mitigation},
           author={Karkkainen, Kimmo and Joo, Jungseock},
@@ -13,6 +14,7 @@ Karkkainen, K., & Joo, J. (2021). FairFace: Face Attribute Dataset for Balanced 
           year={2021},
           pages={1548--1558}
         }
+```
 
 ### Examples of FairFace Prediction
 ![](https://github.com/dchen236/FairFace/blob/master/examples/female.png)
