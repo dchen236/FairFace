@@ -15,4 +15,4 @@ module purge
 module load anaconda3/2022.10
 conda activate torch-env
 
-python predict.py --csv "test_imgs.csv"
+python predict.py --input_csv "/scratch/gpfs/eh0560/FairFace/test/test_imgs.csv" --detected_faces_output "/scratch/gpfs/eh0560/FairFace/test/detected_faces" --prediction_output "/scratch/gpfs/eh0560/FairFace/test/test_outputs.csv"
