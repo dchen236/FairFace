@@ -37,6 +37,76 @@ def rect_to_bb(rect):
     return (x, y, w, h)
 
 
+def load_dlib_models():
+    cnn_face_detector = dlib.cnn_face_detection_model_v1(
+        "dlib_models/mmod_human_face_detector.dat"
+    )
+    sp = dlib.shape_predictor("dlib_models/shape_predictor_5_face_landmarks.dat")
+    return cnn_face_detector, sp
+
+
+def resize_image(img, default_max_size=800):
+    old_height, old_width, _ = img.shape
+    if old_width > old_height:
+        new_width, new_height = default_max_size, int(
+            default_max_size * old_height / old_width
+        )
+    else:
+        new_width, new_height = (
+            int(default_max_size * old_width / old_height),
+            default_max_size,
+        )
+    img = dlib.resize_image(img, rows=new_height, cols=new_width)
+    return img
+
+
+def find_faces_in_image(img, cnn_face_detector, sp):
+    dets = cnn_face_detector(img, 1)
+    faces = dlib.full_object_detections()
+    for detection in dets:
+        rect = detection.rect
+        faces.append(sp(img, rect))
+    return faces
+
+
+def save_face_chips(images, image_path, detected_images_output_dir):
+    for idx, image in enumerate(images):
+        img_name = image_path.split("/")[-1]
+        path_sp = img_name.split(".")
+        face_name = os.path.join(
+            detected_images_output_dir,
+            path_sp[0] + "_" + "face" + str(idx) + "." + path_sp[-1],
+        )
+        dlib.save_image(image, face_name)
+
+
+def detect_face(
+    image_paths,
+    detected_images_output_dir,
+    default_max_size=800,
+    size=300,
+    padding=0.25,
+):
+    logger = logging.getLogger(__name__)
+    cnn_face_detector, sp = load_dlib_models()
+
+    for index, image_path in enumerate(image_paths):
+        if index % 1000 == 0:
+            logger.info("---%d/%d---" % (index, len(image_paths)))
+
+        img = dlib.load_rgb_image(image_path)
+        img = resize_image(img, default_max_size)
+        faces = find_faces_in_image(img, cnn_face_detector, sp)
+
+        if len(faces) == 0:
+            logger.info("Sorry, there were no faces found in '{}'".format(image_path))
+            continue
+
+        images = dlib.get_face_chips(img, faces, size=size, padding=padding)
+        save_face_chips(images, image_path, detected_images_output_dir)
+
+
+"""
 def detect_face(
     image_paths, detected_images_output_dir, default_max_size=800, size=300, padding=0.25
 ):
@@ -83,6 +153,7 @@ def detect_face(
                 path_sp[0] + "_" + "face" + str(idx) + "." + path_sp[-1],
             )
             dlib.save_image(image, face_name)
+"""
 
 
 def predidct_age_gender_race(save_prediction_at, imgs_path="cropped_faces/"):
@@ -345,7 +416,9 @@ def main():
     logfile_output_dir = "./logs"
     ensure_dir(logfile_output_dir)
 
-    logger = setup_logger("main", os.path.join(logfile_output_dir, f"{time.time()}.log"))
+    logger = setup_logger(
+        "main", os.path.join(logfile_output_dir, f"{time.time()}.log")
+    )
 
     parser = setup_args()
     args = parser.parse_args()
