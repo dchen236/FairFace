@@ -61,16 +61,6 @@ def rect_to_bb(rect):
     tuple
         A 4-tuple (x, y, w, h) where (x, y) are the top-left corner coordinates
         of the bounding box, and (w, h) are the width and height of the bounding box.
-
-    Examples
-    --------
-    >>> import dlib
-    >>> img = dlib.load_rgb_image('path/to/image.jpg')
-    >>> detector = dlib.get_frontal_face_detector()
-    >>> dets = detector(img, 1)
-    >>> for det in dets:
-    ...     x, y, w, h = rect_to_bb(det)
-    ...     print("Bounding box coordinates: (x, y) = ({}, {}), width = {}, height = {}".format(x, y, w, h))
     """
     x = rect.left()
     y = rect.top()
@@ -92,10 +82,6 @@ def load_dlib_models():
         The pre-trained dlib face detection model using the MMOD algorithm.
     sp : dlib.shape_predictor
         The pre-trained dlib 5-point facial landmark predictor model.
-
-    Examples
-    --------
-    >>> cnn_face_detector, sp = load_dlib_models()
     """
     cnn_face_detector = dlib.cnn_face_detection_model_v1(
         "dlib_models/mmod_human_face_detector.dat"
@@ -122,12 +108,6 @@ def resize_image(img, default_max_size=800):
     -------
     numpy.ndarray
         The resized image.
-
-    Examples
-    --------
-    >>> import cv2
-    >>> img = cv2.imread('path/to/image.jpg')
-    >>> resized_img = resize_image(img, default_max_size=600)
     """
     old_height, old_width, _ = img.shape
     if old_width > old_height:
@@ -162,14 +142,6 @@ def find_faces_in_image(img, cnn_face_detector, sp):
     -------
     list of dlib.full_object_detection
         A list of full_object_detection objects, each containing the facial landmarks for a detected face.
-
-    Examples
-    --------
-    >>> import dlib
-    >>> cnn_face_detector = dlib.cnn_face_detection_model_v1("dlib_models/mmod_human_face_detector.dat")
-    >>> sp = dlib.shape_predictor("dlib_models/shape_predictor_5_face_landmarks.dat")
-    >>> img = dlib.load_rgb_image("path/to/image.jpg")
-    >>> faces = find_faces_in_image(img, cnn_face_detector, sp)
     """
     dets = cnn_face_detector(img, 1)
     faces = dlib.full_object_detections()
@@ -198,13 +170,6 @@ def save_face_chips(images, image_path, detected_images_output_dir):
     Returns
     -------
     None
-
-    Examples
-    --------
-    >>> images = [detected_face_1, detected_face_2, detected_face_3]
-    >>> image_path = "path/to/image.jpg"
-    >>> detected_images_output_dir = "path/to/output_directory"
-    >>> save_face_chips(images, image_path, detected_images_output_dir)
     """
     for idx, image in enumerate(images):
         img_name = image_path.split("/")[-1]
@@ -245,12 +210,6 @@ def detect_face(
     Returns
     -------
     None
-
-    Examples
-    --------
-    >>> image_paths = ["path/to/image1.jpg", "path/to/image2.jpg", "path/to/image3.jpg"]
-    >>> detected_images_output_dir = "path/to/output_directory"
-    >>> detect_face(image_paths, detected_images_output_dir)
     """
     logger = logging.getLogger(__name__)
     cnn_face_detector, sp = load_dlib_models()
@@ -290,7 +249,7 @@ def load_models(device):
     Notes
     -----
     - The models are based on the ResNet34 architecture and have been fine-tuned for age, gender, and race classification.
-    - Model weights are loaded from pre-saved state_dict files from FairFace.
+    - Model weights are loaded from pre-saved state_dict files from FairFace researchers.
     """
     model_fair_7 = torchvision.models.resnet34(pretrained=True)
     model_fair_7.fc = nn.Linear(model_fair_7.fc.in_features, 18)
@@ -368,6 +327,28 @@ def load_and_preprocess_image(img_name, trans, device):
 
 
 def predict_with_models(image, model_fair_7, model_fair_4):
+    """Run image through both models (model_fair_7 and model_fair_4) to obtain prediction outputs.
+
+    Parameters
+    ----------
+    image : torch.Tensor
+        The preprocessed input image tensor with shape (1, 3, 224, 224).
+    model_fair_7 : torch.nn.Module
+        The pre-trained model for 7-class race classification, gender classification, and age classification.
+    model_fair_4 : torch.nn.Module
+        The pre-trained model for 4-class race classification.
+
+    Returns
+    -------
+    outputs_7 : numpy.ndarray
+        The prediction outputs of model_fair_7, a 1D array of 18 elements representing race, gender, and age probabilities.
+    outputs_4 : numpy.ndarray
+        The prediction outputs of model_fair_4, a 1D array of 4 elements representing race probabilities.
+
+    Notes
+    -----
+    - The outputs are detached from the computation graph and converted to NumPy arrays before being returned.
+    """
     outputs_7 = model_fair_7(image)
     outputs_7 = outputs_7.cpu().detach().numpy()
     outputs_7 = np.squeeze(outputs_7)
@@ -378,18 +359,64 @@ def predict_with_models(image, model_fair_7, model_fair_4):
 
     return outputs_7, outputs_4
 
+def softmax(x):
+    """Compute the softmax function for the given input.
+
+    Parameters
+    ----------
+    x : numpy.ndarray
+        The input array for which softmax should be calculated.
+
+    Returns
+    -------
+    numpy.ndarray
+        The softmax-transformed array with the same shape as the input.
+    """
+    exp_x = np.exp(x)
+    return exp_x / np.sum(exp_x)
+
+
 
 def extract_predictions(outputs_7, outputs_4):
+    """Extract predictions and probabilities from the outputs of both models (model_fair_7 and model_fair_4).
+
+    Parameters
+    ----------
+    outputs_7 : numpy.ndarray
+        The prediction outputs of model_fair_7, a 1D array of 18 elements representing race, gender, and age probabilities.
+    outputs_4 : numpy.ndarray
+        The prediction outputs of model_fair_4, a 1D array of 4 elements representing race probabilities.
+
+    Returns
+    -------
+    race_pred_7 : int
+        The predicted race class from model_fair_7 (7-class race classification).
+    race_score_7 : numpy.ndarray
+        The predicted race probabilities from model_fair_7 (7-class race classification).
+    gender_pred_7 : int
+        The predicted gender class from model_fair_7.
+    gender_score_7 : numpy.ndarray
+        The predicted gender probabilities from model_fair_7.
+    age_pred_7 : int
+        The predicted age class from model_fair_7.
+    age_score_7 : numpy.ndarray
+        The predicted age probabilities from model_fair_7.
+    race_pred_4 : int
+        The predicted race class from model_fair_4 (4-class race classification).
+    race_score_4 : numpy.ndarray
+        The predicted race probabilities from model_fair_4 (4-class race classification).
+    """
+
     race_outputs_7 = outputs_7[:7]
     gender_outputs_7 = outputs_7[7:9]
     age_outputs_7 = outputs_7[9:18]
     race_outputs_4 = outputs_4[:4]
+    
+    race_score_7 = softmax(race_outputs_7)
+    gender_score_7 = softmax(gender_outputs_7)
+    age_score_7 = softmax(age_outputs_7)
 
-    race_score_7 = np.exp(race_outputs_7) / np.sum(np.exp(race_outputs_7))
-    gender_score_7 = np.exp(gender_outputs_7) / np.sum(np.exp(gender_outputs_7))
-    age_score_7 = np.exp(age_outputs_7) / np.sum(np.exp(age_outputs_7))
-
-    race_score_4 = np.exp(race_outputs_4) / np.sum(np.exp(race_outputs_4))
+    race_score_4 = softmax(race_outputs_4)
 
     race_pred_7 = np.argmax(race_score_7)
     gender_pred_7 = np.argmax(gender_score_7)
@@ -410,6 +437,30 @@ def extract_predictions(outputs_7, outputs_4):
 
 
 def assign_labels(result):
+    """Assign human-readable labels to the predicted class indices for race, gender, and age in the result DataFrame.
+    
+    Parameters
+    ----------
+    result : pd.DataFrame
+        A DataFrame containing the face image filenames and predicted class indices and probabilities for race 
+        (7-class and 4-class), gender, and age with the following columns:
+            'face_name_align',
+            'race_preds_fair',
+            'race_scores_fair',
+            'gender_preds_fair',
+            'gender_scores_fair',
+            'age_preds_fair',
+            'age_scores_fair',
+            'race_preds_fair_4',
+            'race_scores_fair_4'
+
+    Returns
+    -------
+    result : pd.DataFrame
+        The input DataFrame with additional columns for human-readable labels for race (7-class and 4-class), gender,
+        and age:
+            'race', 'race4', 'gender', 'age'
+    """
     # race fair 7
     result.loc[result["race_preds_fair"] == 0, "race"] = "White"
     result.loc[result["race_preds_fair"] == 1, "race"] = "Black"
@@ -446,6 +497,21 @@ def assign_labels(result):
 def predidct_age_gender_race(
     save_prediction_at, imgs_path="cropped_faces/", device="cuda"
 ):
+    """Predict age, gender, and race for a given set of face images, and save the results in a CSV file.
+
+    Parameters
+    ----------
+    save_prediction_at : str
+        Path to the CSV file where the predictions will be saved.
+    imgs_path : str, optional
+        Path to the directory containing the cropped face images, by default "cropped_faces/"
+    device : str, optional
+        Device to use for running the deep learning models, either "cuda" (GPU) or "cpu", by default "cuda"
+
+    Returns
+    -------
+    None
+    """
     logger = logging.getLogger(__name__)
     img_names = [os.path.join(imgs_path, x) for x in os.listdir(imgs_path)]
 
@@ -497,12 +563,16 @@ def predidct_age_gender_race(
 
 
 def ensure_dir(directory):
-    """Check if directory exists, if not create it
+    """Check if the specified directory exists, and create it if it does not.
 
     Parameters
     ----------
     directory : str
-        path to directory
+        Path to the directory that needs to be checked or created.
+
+    Returns
+    -------
+    None
     """
     logger = logging.getLogger(__name__)
     if not os.path.exists(directory):
@@ -513,26 +583,27 @@ def ensure_dir(directory):
 
 
 def setup_logger(name, log_file, console_level=logging.INFO, file_level=logging.INFO):
-    """Setup a logger that logs to console and file
+    """Set up a logger that logs to both console and file.
 
     Parameters
     ----------
     name : str
-        name of the logger
-
+        Name of the logger.
     log_file : str
-        path to log file
-
-    console_level : logging level
-        level of logging to console
-
-    file_level : logging level
-        level of logging to file
+        Path to the log file.
+    console_level : int, optional
+        Level of logging to the console, by default logging.INFO.
+    file_level : int, optional
+        Level of logging to the file, by default logging.INFO.
 
     Returns
     -------
-    logger : logging.logger
-        logger object
+    logger : logging.Logger
+        Logger object configured to log to both console and file.
+
+    Notes
+    -----
+    The logger is set up with a logging format that includes timestamp, logger name, log level, and the log message.
     """
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger(name)
@@ -556,12 +627,12 @@ def setup_logger(name, log_file, console_level=logging.INFO, file_level=logging.
 
 
 def setup_args():
-    """Setup arguments for the script
+    """Set up the arguments for the script.
 
     Returns
     -------
     parser : argparse.ArgumentParser
-        parser object
+        Parser object containing the configured arguments.
     """
     parser = argparse.ArgumentParser()
 
@@ -594,15 +665,13 @@ def main():
     """Main function"""
     logfile_output_dir = "./logs"
     ensure_dir(logfile_output_dir)
-
-    logger = setup_logger(
-        "main", os.path.join(logfile_output_dir, f"{time.time()}.log")
-    )
+    log_file_path = os.path.join(logfile_output_dir, f"{time.time()}.log")
+    logger = setup_logger("main", log_file_path)
 
     parser = setup_args()
     args = parser.parse_args()
 
-    # TODO: explain why we need to do this and how to get the model
+    # Set the local cache directory for pre-trained models.
     os.environ["TORCH_HOME"] = "./torch_models"
 
     use_cuda = torch.cuda.is_available() and not args.no_cuda
@@ -611,8 +680,8 @@ def main():
     logger.info("using CUDA?: %s" % use_cuda)
 
     ensure_dir(args.detected_faces_output)
-    # Create a csv with one column 'img_path', which contains the full
-    # paths of all images to be analyzed.
+    
+    # Read the CSV containing image paths and extract the 'img_path' column.
     imgs = pd.read_csv(args.input_csv)["img_path"]
     detect_face(imgs, args.detected_faces_output)
 
