@@ -359,6 +359,7 @@ def predict_with_models(image, model_fair_7, model_fair_4):
 
     return outputs_7, outputs_4
 
+
 def softmax(x):
     """Compute the softmax function for the given input.
 
@@ -374,7 +375,6 @@ def softmax(x):
     """
     exp_x = np.exp(x)
     return exp_x / np.sum(exp_x)
-
 
 
 def extract_predictions(outputs_7, outputs_4):
@@ -411,7 +411,7 @@ def extract_predictions(outputs_7, outputs_4):
     gender_outputs_7 = outputs_7[7:9]
     age_outputs_7 = outputs_7[9:18]
     race_outputs_4 = outputs_4[:4]
-    
+
     race_score_7 = softmax(race_outputs_7)
     gender_score_7 = softmax(gender_outputs_7)
     age_score_7 = softmax(age_outputs_7)
@@ -438,11 +438,11 @@ def extract_predictions(outputs_7, outputs_4):
 
 def assign_labels(result):
     """Assign human-readable labels to the predicted class indices for race, gender, and age in the result DataFrame.
-    
+
     Parameters
     ----------
     result : pd.DataFrame
-        A DataFrame containing the face image filenames and predicted class indices and probabilities for race 
+        A DataFrame containing the face image filenames and predicted class indices and probabilities for race
         (7-class and 4-class), gender, and age with the following columns:
             'face_name_align',
             'race_preds_fair',
@@ -680,7 +680,7 @@ def main():
     logger.info("using CUDA?: %s" % use_cuda)
 
     ensure_dir(args.detected_faces_output)
-    
+
     # Read the CSV containing image paths and extract the 'img_path' column.
     imgs = pd.read_csv(args.input_csv)["img_path"]
     detect_face(imgs, args.detected_faces_output)
