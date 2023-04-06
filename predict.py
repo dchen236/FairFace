@@ -273,6 +273,25 @@ def detect_face(
 
 
 def load_models(device):
+    """Load the pre-trained models for age, gender, and race classification.
+
+    Parameters
+    ----------
+    device : torch.device
+        The device (CPU or GPU) where the models will be loaded.
+
+    Returns
+    -------
+    model_fair_7 : torch.nn.Module
+        The pre-trained model for 7-class race classification, gender classification, and age classification.
+    model_fair_4 : torch.nn.Module
+        The pre-trained model for 4-class race classification.
+
+    Notes
+    -----
+    - The models are based on the ResNet34 architecture and have been fine-tuned for age, gender, and race classification.
+    - Model weights are loaded from pre-saved state_dict files from FairFace.
+    """
     model_fair_7 = torchvision.models.resnet34(pretrained=True)
     model_fair_7.fc = nn.Linear(model_fair_7.fc.in_features, 18)
     model_fair_7.load_state_dict(
@@ -293,6 +312,22 @@ def load_models(device):
 
 
 def get_transform():
+    """Get the image transformation pipeline for the input images.
+
+    Returns
+    -------
+    trans : torchvision.transforms.Compose
+        The transformation pipeline which consists of the following steps:
+        1. Convert the input image to a PIL image.
+        2. Resize the input image to (224, 224).
+        3. Convert the PIL image to a PyTorch tensor.
+        4. Normalize the input tensor with the mean and standard deviation of the ImageNet dataset.
+
+    Notes
+    -----
+    - This transformation pipeline is tailored for the specific pre-trained models used in this module.
+    - The models expect input images of size (224, 224) and normalized with ImageNet statistics.
+    """
     trans = transforms.Compose(
         [
             transforms.ToPILImage(),
@@ -305,6 +340,26 @@ def get_transform():
 
 
 def load_and_preprocess_image(img_name, trans, device):
+    """Load and preprocess an image for model input.
+
+    Parameters
+    ----------
+    img_name : str
+        Path to the image file.
+    trans : torchvision.transforms.Compose
+        The transformation pipeline to apply to the input image.
+    device : torch.device
+        The device (CPU or GPU) on which the input image tensor should be placed.
+
+    Returns
+    -------
+    image : torch.Tensor
+        The preprocessed image tensor, ready for input to the model.
+
+    Notes
+    -----
+    - The resulting image tensor is moved to the specified device (CPU or GPU) before being returned.
+    """
     image = dlib.load_rgb_image(img_name)
     image = trans(image)
     image = image.view(1, 3, 224, 224)
