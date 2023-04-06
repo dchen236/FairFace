@@ -52,7 +52,6 @@ def rect_to_bb(rect):
     return (x, y, w, h)
 
 
-
 def load_dlib_models():
     """Load dlib models for face detection and landmark prediction.
 
@@ -71,10 +70,11 @@ def load_dlib_models():
     --------
     >>> cnn_face_detector, sp = load_dlib_models()
     """
-    cnn_face_detector = dlib.cnn_face_detection_model_v1("dlib_models/mmod_human_face_detector.dat")
+    cnn_face_detector = dlib.cnn_face_detection_model_v1(
+        "dlib_models/mmod_human_face_detector.dat"
+    )
     sp = dlib.shape_predictor("dlib_models/shape_predictor_5_face_landmarks.dat")
     return cnn_face_detector, sp
-
 
 
 def resize_image(img, default_max_size=800):
@@ -229,7 +229,9 @@ def detect_face(
     cnn_face_detector, sp = load_dlib_models()
 
     for index, image_path in enumerate(image_paths):
-        logger.info(f"Processing image {index + 1} of {len(image_paths)}: '{image_path}'")
+        logger.info(
+            f"Processing image {index + 1} of {len(image_paths)}: '{image_path}'"
+        )
 
         img = dlib.load_rgb_image(image_path)
         img = resize_image(img, default_max_size)
@@ -243,11 +245,7 @@ def detect_face(
         save_face_chips(images, image_path, detected_images_output_dir)
 
 
-def predidct_age_gender_race(save_prediction_at, imgs_path="cropped_faces/"):
-    logger = logging.getLogger(__name__)
-    img_names = [os.path.join(imgs_path, x) for x in os.listdir(imgs_path)]
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
+def load_models(device):
     model_fair_7 = torchvision.models.resnet34(pretrained=True)
     model_fair_7.fc = nn.Linear(model_fair_7.fc.in_features, 18)
     model_fair_7.load_state_dict(
@@ -264,6 +262,10 @@ def predidct_age_gender_race(save_prediction_at, imgs_path="cropped_faces/"):
     model_fair_4 = model_fair_4.to(device)
     model_fair_4.eval()
 
+    return model_fair_7, model_fair_4
+
+
+def get_transform():
     trans = transforms.Compose(
         [
             transforms.ToPILImage(),
@@ -272,91 +274,61 @@ def predidct_age_gender_race(save_prediction_at, imgs_path="cropped_faces/"):
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ]
     )
-    # img pth of face images
-    face_names = []
-    # list within a list. Each sublist contains scores for all races. Take max for predicted race
-    race_scores_fair = []
-    gender_scores_fair = []
-    age_scores_fair = []
-    race_preds_fair = []
-    gender_preds_fair = []
-    age_preds_fair = []
-    race_scores_fair_4 = []
-    race_preds_fair_4 = []
+    return trans
 
-    for index, img_name in enumerate(img_names):
-        if index % 1000 == 0:
-            logger.info("Predicting... {}/{}".format(index, len(img_names)))
 
-        face_names.append(img_name)
-        image = dlib.load_rgb_image(img_name)
-        image = trans(image)
-        image = image.view(
-            1, 3, 224, 224
-        )  # reshape image to match model dimensions (1 batch size)
-        image = image.to(device)
+def load_and_preprocess_image(img_name, trans, device):
+    image = dlib.load_rgb_image(img_name)
+    image = trans(image)
+    image = image.view(1, 3, 224, 224)
+    image = image.to(device)
+    return image
 
-        # fair
-        outputs = model_fair_7(image)
-        outputs = outputs.cpu().detach().numpy()
-        outputs = np.squeeze(outputs)
 
-        race_outputs = outputs[:7]
-        gender_outputs = outputs[7:9]
-        age_outputs = outputs[9:18]
+def predict_with_models(image, model_fair_7, model_fair_4):
+    outputs_7 = model_fair_7(image)
+    outputs_7 = outputs_7.cpu().detach().numpy()
+    outputs_7 = np.squeeze(outputs_7)
 
-        race_score = np.exp(race_outputs) / np.sum(np.exp(race_outputs))
-        gender_score = np.exp(gender_outputs) / np.sum(np.exp(gender_outputs))
-        age_score = np.exp(age_outputs) / np.sum(np.exp(age_outputs))
+    outputs_4 = model_fair_4(image)
+    outputs_4 = outputs_4.cpu().detach().numpy()
+    outputs_4 = np.squeeze(outputs_4)
 
-        race_pred = np.argmax(race_score)
-        gender_pred = np.argmax(gender_score)
-        age_pred = np.argmax(age_score)
+    return outputs_7, outputs_4
 
-        race_scores_fair.append(race_score)
-        gender_scores_fair.append(gender_score)
-        age_scores_fair.append(age_score)
 
-        race_preds_fair.append(race_pred)
-        gender_preds_fair.append(gender_pred)
-        age_preds_fair.append(age_pred)
+def extract_predictions(outputs_7, outputs_4):
+    race_outputs_7 = outputs_7[:7]
+    gender_outputs_7 = outputs_7[7:9]
+    age_outputs_7 = outputs_7[9:18]
+    race_outputs_4 = outputs_4[:4]
 
-        # fair 4 class
-        outputs = model_fair_4(image)
-        outputs = outputs.cpu().detach().numpy()
-        outputs = np.squeeze(outputs)
+    race_score_7 = np.exp(race_outputs_7) / np.sum(np.exp(race_outputs_7))
+    gender_score_7 = np.exp(gender_outputs_7) / np.sum(np.exp(gender_outputs_7))
+    age_score_7 = np.exp(age_outputs_7) / np.sum(np.exp(age_outputs_7))
 
-        race_outputs = outputs[:4]
-        race_score = np.exp(race_outputs) / np.sum(np.exp(race_outputs))
-        race_pred = np.argmax(race_score)
+    race_score_4 = np.exp(race_outputs_4) / np.sum(np.exp(race_outputs_4))
 
-        race_scores_fair_4.append(race_score)
-        race_preds_fair_4.append(race_pred)
+    race_pred_7 = np.argmax(race_score_7)
+    gender_pred_7 = np.argmax(gender_score_7)
+    age_pred_7 = np.argmax(age_score_7)
 
-    result = pd.DataFrame(
-        [
-            face_names,
-            race_preds_fair,
-            race_preds_fair_4,
-            gender_preds_fair,
-            age_preds_fair,
-            race_scores_fair,
-            race_scores_fair_4,
-            gender_scores_fair,
-            age_scores_fair,
-        ]
-    ).T
-    result.columns = [
-        "face_name_align",
-        "race_preds_fair",
-        "race_preds_fair_4",
-        "gender_preds_fair",
-        "age_preds_fair",
-        "race_scores_fair",
-        "race_scores_fair_4",
-        "gender_scores_fair",
-        "age_scores_fair",
-    ]
+    race_pred_4 = np.argmax(race_score_4)
+
+    return (
+        race_pred_7,
+        race_score_7,
+        gender_pred_7,
+        gender_score_7,
+        age_pred_7,
+        age_score_7,
+        race_pred_4,
+        race_score_4,
+    )
+
+
+def assign_labels(result):
+    # race fair 7
     result.loc[result["race_preds_fair"] == 0, "race"] = "White"
     result.loc[result["race_preds_fair"] == 1, "race"] = "Black"
     result.loc[result["race_preds_fair"] == 2, "race"] = "Latino_Hispanic"
@@ -366,7 +338,6 @@ def predidct_age_gender_race(save_prediction_at, imgs_path="cropped_faces/"):
     result.loc[result["race_preds_fair"] == 6, "race"] = "Middle Eastern"
 
     # race fair 4
-
     result.loc[result["race_preds_fair_4"] == 0, "race4"] = "White"
     result.loc[result["race_preds_fair_4"] == 1, "race4"] = "Black"
     result.loc[result["race_preds_fair_4"] == 2, "race4"] = "Asian"
@@ -387,6 +358,45 @@ def predidct_age_gender_race(save_prediction_at, imgs_path="cropped_faces/"):
     result.loc[result["age_preds_fair"] == 7, "age"] = "60-69"
     result.loc[result["age_preds_fair"] == 8, "age"] = "70+"
 
+    return result
+
+
+def predidct_age_gender_race(
+    save_prediction_at, imgs_path="cropped_faces/", device="cuda"
+):
+    logger = logging.getLogger(__name__)
+    img_names = [os.path.join(imgs_path, x) for x in os.listdir(imgs_path)]
+
+    model_fair_7, model_fair_4 = load_models(device)
+    trans = get_transform()
+
+    predictions = []
+
+    for index, img_name in enumerate(img_names):
+        if index % 1000 == 0:
+            logger.info("Predicting... {}/{}".format(index, len(img_names)))
+
+        image = load_and_preprocess_image(img_name, trans, device)
+        outputs_7, outputs_4 = predict_with_models(image, model_fair_7, model_fair_4)
+        prediction = extract_predictions(outputs_7, outputs_4)
+        predictions.append((img_name,) + prediction)
+
+    result = pd.DataFrame(
+        predictions,
+        columns=[
+            "face_name_align",
+            "race_preds_fair",
+            "race_scores_fair",
+            "gender_preds_fair",
+            "gender_scores_fair",
+            "age_preds_fair",
+            "age_scores_fair",
+            "race_preds_fair_4",
+            "race_scores_fair_4",
+        ],
+    )
+
+    result = assign_labels(result)
     result[
         [
             "face_name_align",
@@ -525,7 +535,7 @@ def main():
     detect_face(imgs, args.detected_faces_output)
 
     logger.info("detected faces are saved at %s" % args.detected_faces_output)
-    predidct_age_gender_race(args.prediction_output, args.detected_faces_output)
+    predidct_age_gender_race(args.prediction_output, args.detected_faces_output, device)
 
 
 if __name__ == "__main__":
