@@ -1,3 +1,30 @@
+"""
+This module provides functionality for predicting age, gender, and race from face images. 
+It includes the following main components:
+
+1. Loading pre-trained models
+2. Pre-processing image data
+3. Predicting age, gender, and race from face images
+4. Saving predictions to a CSV file
+
+The module relies on the PyTorch library and pre-trained models for the predictions. 
+These models are based on the ResNet34 architecture and have been fine-tuned for age, 
+gender, and race classification.
+
+Usage:
+    Import the module and call the `predidct_age_gender_race` function with the 
+    appropriate parameters.
+
+Example:
+    from age_gender_race_prediction import predidct_age_gender_race
+
+    save_prediction_at = "predictions.csv"
+    imgs_path = "cropped_faces/"
+
+    predidct_age_gender_race(save_prediction_at, imgs_path)
+"""
+
+
 from __future__ import print_function, division
 import warnings
 
