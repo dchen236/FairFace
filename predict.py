@@ -17,18 +17,33 @@ import dlib
 
 
 def rect_to_bb(rect):
-    """Convert a dlib 'rect' object to a OpenCV-style bounding box
+    """Convert a dlib 'rect' object to an OpenCV-style bounding box.
+
+    This function takes a dlib rectangle object as input and returns
+    a 4-tuple representing the bounding box in OpenCV-style format.
+    The tuple consists of the top-left corner coordinates (x, y) and
+    the width and height of the bounding box (w, h).
 
     Parameters
     ----------
     rect : dlib.rectangle
-        A dlib rectangle object
+        A dlib rectangle object representing the face bounding box.
 
     Returns
     -------
     tuple
-        A 4-tuple (x, y, w, h) where (x, y) is the top-left corner of the
-        bounding box and (w, h) are the width and height of the bounding box
+        A 4-tuple (x, y, w, h) where (x, y) are the top-left corner coordinates
+        of the bounding box, and (w, h) are the width and height of the bounding box.
+
+    Examples
+    --------
+    >>> import dlib
+    >>> img = dlib.load_rgb_image('path/to/image.jpg')
+    >>> detector = dlib.get_frontal_face_detector()
+    >>> dets = detector(img, 1)
+    >>> for det in dets:
+    ...     x, y, w, h = rect_to_bb(det)
+    ...     print("Bounding box coordinates: (x, y) = ({}, {}), width = {}, height = {}".format(x, y, w, h))
     """
     x = rect.left()
     y = rect.top()
@@ -37,15 +52,56 @@ def rect_to_bb(rect):
     return (x, y, w, h)
 
 
+
 def load_dlib_models():
-    cnn_face_detector = dlib.cnn_face_detection_model_v1(
-        "dlib_models/mmod_human_face_detector.dat"
-    )
+    """Load dlib models for face detection and landmark prediction.
+
+    This function loads and returns the pre-trained dlib models for
+    face detection using the Max-Margin Object Detection (MMOD) algorithm
+    and the 5-point facial landmark predictor.
+
+    Returns
+    -------
+    cnn_face_detector : dlib.cnn_face_detection_model_v1
+        The pre-trained dlib face detection model using the MMOD algorithm.
+    sp : dlib.shape_predictor
+        The pre-trained dlib 5-point facial landmark predictor model.
+
+    Examples
+    --------
+    >>> cnn_face_detector, sp = load_dlib_models()
+    """
+    cnn_face_detector = dlib.cnn_face_detection_model_v1("dlib_models/mmod_human_face_detector.dat")
     sp = dlib.shape_predictor("dlib_models/shape_predictor_5_face_landmarks.dat")
     return cnn_face_detector, sp
 
 
+
 def resize_image(img, default_max_size=800):
+    """Resize an image maintaining its aspect ratio with a specified maximum size.
+
+    This function resizes an input image maintaining its aspect ratio,
+    using the specified maximum size for the largest dimension (either width or height).
+
+    Parameters
+    ----------
+    img : numpy.ndarray
+        The input image to be resized.
+    default_max_size : int, optional, default=800
+        The maximum size for the largest dimension (either width or height) of the resized image.
+        If not specified, the default value is 800.
+
+    Returns
+    -------
+    numpy.ndarray
+        The resized image.
+
+    Examples
+    --------
+    >>> import cv2
+    >>> img = cv2.imread('path/to/image.jpg')
+    >>> resized_img = resize_image(img, default_max_size=600)
+    """
     old_height, old_width, _ = img.shape
     if old_width > old_height:
         new_width, new_height = default_max_size, int(
@@ -61,6 +117,33 @@ def resize_image(img, default_max_size=800):
 
 
 def find_faces_in_image(img, cnn_face_detector, sp):
+    """Detect faces and their landmarks in an input image using a CNN face detector and a shape predictor.
+
+    This function uses a CNN face detector to detect faces in the input image
+    and a shape predictor to identify facial landmarks for each detected face.
+
+    Parameters
+    ----------
+    img : numpy.ndarray
+        The input image in which faces are to be detected.
+    cnn_face_detector : dlib.cnn_face_detection_model_v1
+        A pre-trained CNN face detection model from dlib.
+    sp : dlib.shape_predictor
+        A pre-trained shape predictor model from dlib for facial landmarks detection.
+
+    Returns
+    -------
+    list of dlib.full_object_detection
+        A list of full_object_detection objects, each containing the facial landmarks for a detected face.
+
+    Examples
+    --------
+    >>> import dlib
+    >>> cnn_face_detector = dlib.cnn_face_detection_model_v1("dlib_models/mmod_human_face_detector.dat")
+    >>> sp = dlib.shape_predictor("dlib_models/shape_predictor_5_face_landmarks.dat")
+    >>> img = dlib.load_rgb_image("path/to/image.jpg")
+    >>> faces = find_faces_in_image(img, cnn_face_detector, sp)
+    """
     dets = cnn_face_detector(img, 1)
     faces = dlib.full_object_detections()
     for detection in dets:
@@ -70,6 +153,32 @@ def find_faces_in_image(img, cnn_face_detector, sp):
 
 
 def save_face_chips(images, image_path, detected_images_output_dir):
+    """Save detected face chips from an image to a specified output directory.
+
+    This function takes a list of detected face images (chips) and saves them
+    to the provided output directory with a naming convention based on the
+    original image file name.
+
+    Parameters
+    ----------
+    images : list of numpy.ndarray
+        A list of detected face images (chips) to be saved.
+    image_path : str
+        The file path of the original input image.
+    detected_images_output_dir : str
+        The directory path where the detected face images (chips) will be saved.
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    >>> images = [detected_face_1, detected_face_2, detected_face_3]
+    >>> image_path = "path/to/image.jpg"
+    >>> detected_images_output_dir = "path/to/output_directory"
+    >>> save_face_chips(images, image_path, detected_images_output_dir)
+    """
     for idx, image in enumerate(images):
         img_name = image_path.split("/")[-1]
         path_sp = img_name.split(".")
@@ -87,12 +196,40 @@ def detect_face(
     size=300,
     padding=0.25,
 ):
+    """Detect faces in a list of images and save the detected face chips to an output directory.
+
+    This function takes a list of image file paths, resizes them if necessary, detects faces using
+    a pre-trained model, and saves the detected face chips to the specified output directory.
+
+    Parameters
+    ----------
+    image_paths : list of str
+        A list of file paths of images in which to detect faces.
+    detected_images_output_dir : str
+        The directory path where the detected face images (chips) will be saved.
+    default_max_size : int, optional, default=800
+        The maximum dimension (width or height) for the input images. Images with a larger
+        dimension will be resized to fit within this limit, by default 800.
+    size : int, optional, default=300
+        The size of the output face chips, by default 300.
+    padding : float, optional, default=0.25
+        The padding ratio to be applied around the detected face bounding box, by default 0.25.
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    >>> image_paths = ["path/to/image1.jpg", "path/to/image2.jpg", "path/to/image3.jpg"]
+    >>> detected_images_output_dir = "path/to/output_directory"
+    >>> detect_face(image_paths, detected_images_output_dir)
+    """
     logger = logging.getLogger(__name__)
     cnn_face_detector, sp = load_dlib_models()
 
     for index, image_path in enumerate(image_paths):
-        if index % 1000 == 0:
-            logger.info("---%d/%d---" % (index, len(image_paths)))
+        logger.info(f"Processing image {index + 1} of {len(image_paths)}: '{image_path}'")
 
         img = dlib.load_rgb_image(image_path)
         img = resize_image(img, default_max_size)
